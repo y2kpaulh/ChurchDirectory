@@ -14,7 +14,8 @@
 **이미 schema.sql을 실행한 경우** — 메인 화면 비로그인 조회용 정책 추가:
 
 5. [supabase/migrations/002_public_read.sql](../supabase/migrations/002_public_read.sql) 실행 (anon 읽기)
-6. [supabase/migrations/003_admin_rls.sql](../supabase/migrations/003_admin_rls.sql) 실행 (관리자 CRUD)
+6. [supabase/migrations/004_grants_anon.sql](../supabase/migrations/004_grants_anon.sql) 실행 (권한 부여 — 카테고리 오류 시)
+7. [supabase/migrations/003_admin_rls.sql](../supabase/migrations/003_admin_rls.sql) 실행 (관리자 CRUD)
 
 ### 관리자 Google 계정 등록 (필수)
 
@@ -64,7 +65,7 @@ VALUES ('본인@gmail.com', '이름', true, 'admin');
 - [ ] `allowed_users`에 Google 이메일 + `role = admin`
 - [ ] `003_admin_rls.sql` 실행
 - [ ] (선택) `church_members`에 `is_public = true` 샘플 1건 이상
-- [ ] `002_public_read.sql` 실행 (메인 `/` 로그인 없이 목록 표시)
+- [ ] `002_public_read.sql` + `004_grants_anon.sql` 실행 (메인 `/` 로그인 없이 목록 표시)
 - [ ] Redirect URLs에 `http://localhost:3001/confirm` 등록
 
 ---

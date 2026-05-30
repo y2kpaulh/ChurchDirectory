@@ -48,7 +48,7 @@
             </select>
           </label>
         </div>
-        <p v-if="!loadError" class="mt-3 text-sm text-gray-500">
+        <p v-if="!memberError" class="mt-3 text-sm text-gray-500">
           <template v-if="pending">목록을 불러오는 중…</template>
           <template v-else-if="members.length > 0">
             {{ resultSummary }}
@@ -59,9 +59,17 @@
         </p>
       </section>
 
-      <p v-if="loadError" class="mb-6 text-center text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg py-4 px-4">
-        {{ loadError }}
-        <span class="block mt-1 text-gray-600">Supabase에서 <code class="text-xs bg-red-100 px-1 rounded">002_public_read.sql</code> 실행 여부를 확인해 주세요.</span>
+      <p v-if="categoryError" class="mb-4 text-center text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg py-4 px-4">
+        {{ categoryError }}
+        <span class="block mt-1 text-gray-600 text-xs">
+          Supabase SQL Editor에서
+          <code class="bg-red-100 px-1 rounded">002_public_read.sql</code>,
+          <code class="bg-red-100 px-1 rounded">004_grants_anon.sql</code>
+          순서로 실행해 주세요.
+        </span>
+      </p>
+      <p v-if="memberError" class="mb-6 text-center text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg py-4 px-4">
+        {{ memberError }}
       </p>
 
       <!-- 목록 -->
@@ -74,7 +82,7 @@
       </div>
 
       <div
-        v-else-if="members.length === 0 && !loadError"
+        v-else-if="members.length === 0 && !memberError"
         class="text-center py-16 bg-white rounded-xl border border-dashed border-gray-300"
       >
         <p class="text-gray-600 font-medium">표시할 항목이 없습니다</p>
@@ -179,7 +187,8 @@ const members = ref<Member[]>([])
 const categories = ref<Category[]>([])
 const pending = ref(true)
 const hasNextPage = ref(false)
-const loadError = ref('')
+const categoryError = ref('')
+const memberError = ref('')
 
 let debounceTimeout: ReturnType<typeof setTimeout>
 
@@ -197,25 +206,25 @@ const resultSummary = computed(() => {
   return parts.join(' · ')
 })
 
-const { data: catData, error: catError } = await useAsyncData('categories', async () => {
-  const { data, error } = await supabase.from('categories').select('id, name').order('name')
-  if (error) {
-    throw error
+async function loadCategories() {
+  categoryError.value = ''
+  try {
+    categories.value = await $fetch<Category[]>('/api/public/categories')
   }
-  return data ?? []
-})
-
-if (catError.value) {
-  loadError.value = '카테고리를 불러오지 못했습니다.'
-  pending.value = false
-}
-else {
-  categories.value = catData.value ?? []
+  catch (e: unknown) {
+    const msg = e && typeof e === 'object' && 'data' in e
+      ? (e as { data?: { message?: string } }).data?.message
+      : null
+    categoryError.value = msg
+      ? `카테고리를 불러오지 못했습니다. (${msg})`
+      : '카테고리를 불러오지 못했습니다.'
+    categories.value = []
+  }
 }
 
 async function fetchMembers() {
   pending.value = true
-  loadError.value = ''
+  memberError.value = ''
 
   const from = (page.value - 1) * itemsPerPage
   const to = from + itemsPerPage - 1
@@ -242,7 +251,7 @@ async function fetchMembers() {
 
   if (error) {
     console.error(error)
-    loadError.value = '목록을 불러오지 못했습니다.'
+    memberError.value = `목록을 불러오지 못했습니다. (${error.message})`
     members.value = []
     hasNextPage.value = false
   }
@@ -272,14 +281,13 @@ function changePage(step: number) {
   fetchMembers()
 }
 
-onMounted(() => {
+onMounted(async () => {
   if (showAdminDenied.value) {
     const q = { ...route.query }
     delete q.admin_denied
     router.replace({ query: q })
   }
-  if (!loadError.value) {
-    fetchMembers()
-  }
+  await loadCategories()
+  await fetchMembers()
 })
 </script>

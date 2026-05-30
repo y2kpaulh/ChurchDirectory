@@ -10,3 +10,7 @@ DROP POLICY IF EXISTS "anon_read_categories" ON categories;
 CREATE POLICY "anon_read_categories" ON categories
     FOR SELECT TO anon
     USING (true);
+
+GRANT USAGE ON SCHEMA public TO anon, authenticated;
+GRANT SELECT ON TABLE public.categories TO anon, authenticated;
+GRANT SELECT ON TABLE public.church_members TO anon, authenticated;
