@@ -4,7 +4,7 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   app: {
     head: {
-      title: '수원하나교회 성도 직장 목록',
+      title: '수원하나교회 성도 사업장',
       meta: [{ name: 'description', content: '교회 성도 직장·사업 정보 검색' }],
     },
   },

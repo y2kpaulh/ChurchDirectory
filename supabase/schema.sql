@@ -1,4 +1,4 @@
--- 수원하나교회 성도 직장 목록 — Supabase SQL Editor에서 한 번에 실행
+-- 수원하나교회 성도 사업장 — Supabase SQL Editor에서 한 번에 실행
 -- 실행 후: Table Editor에서 테이블·데이터 확인
 
 -- 1. 카테고리
