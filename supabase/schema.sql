@@ -1,4 +1,4 @@
--- 교회 직장인 디렉토리 — Supabase SQL Editor에서 한 번에 실행
+-- 교회 성도 직장 목록 — Supabase SQL Editor에서 한 번에 실행
 -- 실행 후: Table Editor에서 테이블·데이터 확인
 
 -- 1. 카테고리
@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS categories (
     name VARCHAR(50) NOT NULL UNIQUE
 );
 
--- 2. 교인 직장 정보
+-- 2. 성도 직장 정보
 CREATE TABLE IF NOT EXISTS church_members (
     id SERIAL PRIMARY KEY,
     name VARCHAR(50) NOT NULL,

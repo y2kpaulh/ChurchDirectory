@@ -2,7 +2,8 @@
   <div class="min-h-screen flex items-center justify-center bg-gray-50 px-4">
     <div class="max-w-md w-full space-y-6 p-8 bg-white rounded-xl shadow-md">
       <div class="text-center">
-        <h2 class="text-2xl font-extrabold text-gray-900">관리자 로그인</h2>
+        <p class="text-sm font-medium text-gray-500">교회 성도 직장 목록</p>
+        <h2 class="text-2xl font-extrabold text-gray-900 mt-1">관리자 로그인</h2>
         <p class="mt-2 text-sm text-gray-500">
           Google 계정으로 로그인합니다. 항목 관리는 관리자만 가능합니다.<br>
           목록 조회는 <NuxtLink to="/" class="text-blue-600 hover:underline">메인 화면</NuxtLink>에서 로그인 없이 이용하세요.

@@ -2,6 +2,12 @@
 export default defineNuxtConfig({
   compatibilityDate: '2026-05-25',
   devtools: { enabled: true },
+  app: {
+    head: {
+      title: '교회 성도 직장 목록',
+      meta: [{ name: 'description', content: '교회 성도 직장·사업 정보 검색' }],
+    },
+  },
   runtimeConfig: {
     public: {
       // Vercel: NUXT_PUBLIC_SITE_URL=https://your-app.vercel.app

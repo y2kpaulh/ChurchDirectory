@@ -4,7 +4,7 @@
       <div class="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 class="text-xl font-bold text-gray-900">항목 관리</h1>
-          <p class="text-sm text-gray-500">교인 항목 · 업종 카테고리 · 엑셀</p>
+          <p class="text-sm text-gray-500">성도 항목 · 업종 카테고리 · 엑셀</p>
         </div>
         <div class="flex flex-wrap gap-2">
           <button
@@ -59,7 +59,7 @@
           :class="activeTab === 'members' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-800'"
           @click="activeTab = 'members'"
         >
-          교인 항목
+          성도 항목
         </button>
         <button
           type="button"
@@ -112,11 +112,11 @@
           </table>
         </div>
         <p class="mt-3 text-xs text-gray-500">
-          삭제 시 해당 업종을 쓰던 교인 항목의 업종만 비워집니다.
+          삭제 시 해당 업종을 쓰던 성도 항목의 업종만 비워집니다.
         </p>
       </div>
 
-      <!-- 교인 항목 -->
+      <!-- 성도 항목 -->
       <div v-show="activeTab === 'members'">
       <div class="flex flex-col sm:flex-row gap-3 mb-4">
         <input
