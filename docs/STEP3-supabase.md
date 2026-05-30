@@ -17,6 +17,8 @@
 6. [supabase/migrations/004_grants_anon.sql](../supabase/migrations/004_grants_anon.sql) 실행 (권한 부여 — 카테고리 오류 시)
 7. [supabase/migrations/003_admin_rls.sql](../supabase/migrations/003_admin_rls.sql) 실행 (관리자 성도 항목 CRUD)
 8. [supabase/migrations/005_admin_categories_rls.sql](../supabase/migrations/005_admin_categories_rls.sql) 실행 (관리자 카테고리 CRUD)
+9. [supabase/migrations/006_add_website_url.sql](../supabase/migrations/006_add_website_url.sql) 실행 (항목 URL 링크)
+10. [supabase/migrations/007_add_cell_and_other_info.sql](../supabase/migrations/007_add_cell_and_other_info.sql) 실행 (소속 Cell · 기타 정보)
 
 ### 관리자 Google 계정 등록 (필수)
 

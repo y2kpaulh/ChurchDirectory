@@ -36,6 +36,9 @@ export default defineEventHandler(async (event) => {
       company_name: row.company_name,
       job_title: row.job_title,
       business_description: row.business_description,
+      website_url: row.website_url,
+      cell_info: row.cell_info,
+      other_info: row.other_info,
       is_public: row.is_public,
     })
 

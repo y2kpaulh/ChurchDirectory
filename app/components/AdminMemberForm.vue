@@ -45,6 +45,36 @@
         <textarea v-model="form.business_description" rows="3" class="mt-1 w-full p-2.5 border rounded-lg" />
       </label>
 
+      <label class="block">
+        <span class="text-sm font-medium text-gray-700">URL</span>
+        <input
+          v-model="form.website_url"
+          type="url"
+          placeholder="https://example.com"
+          class="mt-1 w-full p-2.5 border rounded-lg"
+        >
+        <span class="text-xs text-gray-500 mt-1 block">홈페이지·블로그·SNS 등 (선택)</span>
+      </label>
+
+      <label class="block">
+        <span class="text-sm font-medium text-gray-700">소속 Cell</span>
+        <input
+          v-model="form.cell_info"
+          placeholder="예: 청년부 1셀"
+          class="mt-1 w-full p-2.5 border rounded-lg"
+        >
+      </label>
+
+      <label class="block">
+        <span class="text-sm font-medium text-gray-700">기타 정보</span>
+        <textarea
+          v-model="form.other_info"
+          rows="2"
+          placeholder="참고 사항 (선택)"
+          class="mt-1 w-full p-2.5 border rounded-lg"
+        />
+      </label>
+
       <label class="flex items-center gap-2">
         <input v-model="form.is_public" type="checkbox" class="rounded" >
         <span class="text-sm text-gray-700">메인 목록에 공개</span>
@@ -82,6 +112,9 @@ export interface MemberFormModel {
   company_name: string
   job_title: string
   business_description: string
+  website_url: string
+  cell_info: string
+  other_info: string
   is_public: boolean
 }
 
@@ -106,6 +139,9 @@ const form = ref<MemberFormModel>({
   company_name: '',
   job_title: '',
   business_description: '',
+  website_url: '',
+  cell_info: '',
+  other_info: '',
   is_public: true,
 })
 

@@ -3,20 +3,20 @@
 
 INSERT INTO church_members (
     name, phone, category_id, company_name, job_title,
-    business_description, is_public
+    business_description, website_url, cell_info, other_info, is_public
 ) VALUES
 (
     '김목사', '010-1234-5678', 1,
     '은혜 베이커리', '대표',
-    '교회 인근 수제 빵·케이크 제작', true
+    '교회 인근 수제 빵·케이크 제작', 'https://example.com/bakery', '청년부 1셀', null, true
 ),
 (
     '이집사', '010-2345-6789', 2,
     '바른 IT', '개발팀장',
-    '웹·앱 개발, 교회 홈페이지 구축', true
+    '웹·앱 개발, 교회 홈페이지 구축', 'https://example.com/it', '장년부 2셀', '주일 예배 후 상담 가능', true
 ),
 (
     '박권사', '010-3456-7890', 3,
     '새힘 학원', '원장',
-    '초등 수학·영어 과외', true
+    '초등 수학·영어 과외', null, '유초등부 부모셀', null, true
 );

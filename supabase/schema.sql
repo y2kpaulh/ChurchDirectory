@@ -16,6 +16,9 @@ CREATE TABLE IF NOT EXISTS church_members (
     company_name VARCHAR(100),
     job_title VARCHAR(100),
     business_description TEXT,
+    website_url TEXT,
+    cell_info TEXT,
+    other_info TEXT,
     is_public BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );

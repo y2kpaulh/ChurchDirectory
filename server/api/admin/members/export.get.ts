@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
 
   const { data, error } = await client
     .from('church_members')
-    .select('name, phone, company_name, job_title, business_description, is_public, categories(name)')
+    .select('name, phone, company_name, job_title, business_description, website_url, cell_info, other_info, is_public, categories(name)')
     .order('company_name', { ascending: true })
 
   if (error) {

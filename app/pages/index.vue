@@ -107,22 +107,42 @@
                 {{ item.categories.name }}
               </span>
             </div>
-            <p class="text-sm text-gray-600 line-clamp-2 min-h-[2.5rem] mb-4">
+            <p class="text-sm text-gray-600 line-clamp-2 min-h-[2.5rem] mb-2">
               {{ item.business_description || '업무 설명이 없습니다.' }}
             </p>
-            <div class="flex flex-wrap items-center justify-between gap-2 text-sm text-gray-500 border-t border-gray-100 pt-3">
+            <p v-if="item.cell_info" class="text-xs text-gray-500 mb-1">
+              <span class="text-gray-400">Cell</span> {{ item.cell_info }}
+            </p>
+            <p v-if="item.other_info" class="text-xs text-gray-500 mb-3 line-clamp-2">
+              <span class="text-gray-400">기타</span> {{ item.other_info }}
+            </p>
+            <div
+              class="flex flex-wrap items-center justify-between gap-2 text-sm text-gray-500 border-t border-gray-100 pt-3"
+              :class="{ 'mt-1': item.cell_info || item.other_info }"
+            >
               <span>
                 <span class="text-gray-400">담당</span>
                 {{ item.name }}
                 <span v-if="item.job_title" class="text-gray-400">· {{ item.job_title }}</span>
               </span>
-              <a
-                v-if="item.phone"
-                :href="`tel:${item.phone}`"
-                class="inline-flex items-center gap-1 text-blue-600 font-semibold hover:underline"
-              >
-                전화
-              </a>
+              <span class="inline-flex items-center gap-3 shrink-0">
+                <a
+                  v-if="item.website_url"
+                  :href="item.website_url"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="text-blue-600 font-semibold hover:underline"
+                >
+                  웹사이트
+                </a>
+                <a
+                  v-if="item.phone"
+                  :href="`tel:${item.phone}`"
+                  class="text-blue-600 font-semibold hover:underline"
+                >
+                  전화
+                </a>
+              </span>
             </div>
           </div>
         </li>
@@ -171,6 +191,9 @@ interface Member {
   company_name: string | null
   job_title: string | null
   business_description: string | null
+  website_url: string | null
+  cell_info: string | null
+  other_info: string | null
   categories: { name: string } | null
 }
 

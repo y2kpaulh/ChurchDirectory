@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
 
   let dbQuery = client
     .from('church_members')
-    .select('id, name, phone, company_name, job_title, business_description, categories(name)', { count: 'exact' })
+    .select('id, name, phone, company_name, job_title, business_description, website_url, cell_info, other_info, categories(name)', { count: 'exact' })
     .eq('is_public', true)
     .order('company_name', { ascending: true })
     .range(from, to)
@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
   }
   if (search) {
     dbQuery = dbQuery.or(
-      `name.ilike.%${search}%,company_name.ilike.%${search}%,business_description.ilike.%${search}%`,
+      `name.ilike.%${search}%,company_name.ilike.%${search}%,business_description.ilike.%${search}%,cell_info.ilike.%${search}%,other_info.ilike.%${search}%`,
     )
   }
 

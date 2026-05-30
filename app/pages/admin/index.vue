@@ -163,7 +163,13 @@
                   이름
                 </th>
                 <th class="px-4 py-3 font-medium">
+                  Cell
+                </th>
+                <th class="px-4 py-3 font-medium">
                   업종
+                </th>
+                <th class="px-4 py-3 font-medium">
+                  URL
                 </th>
                 <th class="px-4 py-3 font-medium">
                   공개
@@ -181,8 +187,23 @@
                 <td class="px-4 py-3">
                   {{ row.name }}
                 </td>
+                <td class="px-4 py-3 max-w-[8rem] truncate" :title="row.cell_info ?? undefined">
+                  {{ row.cell_info || '—' }}
+                </td>
                 <td class="px-4 py-3">
                   {{ row.categories?.name || '—' }}
+                </td>
+                <td class="px-4 py-3 max-w-[10rem] truncate">
+                  <a
+                    v-if="row.website_url"
+                    :href="row.website_url"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="text-blue-600 hover:underline"
+                  >
+                    링크
+                  </a>
+                  <span v-else>—</span>
                 </td>
                 <td class="px-4 py-3">
                   <span
@@ -202,7 +223,7 @@
                 </td>
               </tr>
               <tr v-if="members.length === 0">
-                <td colspan="5" class="px-4 py-10 text-center text-gray-500">
+                <td colspan="7" class="px-4 py-10 text-center text-gray-500">
                   등록된 항목이 없습니다.
                 </td>
               </tr>
@@ -269,6 +290,9 @@ interface AdminMember {
   company_name: string | null
   job_title: string | null
   business_description: string | null
+  website_url: string | null
+  cell_info: string | null
+  other_info: string | null
   is_public: boolean
   categories: { name: string } | null
 }
@@ -440,6 +464,9 @@ function memberToForm(m: AdminMember): MemberFormModel {
     company_name: m.company_name ?? '',
     job_title: m.job_title ?? '',
     business_description: m.business_description ?? '',
+    website_url: m.website_url ?? '',
+    cell_info: m.cell_info ?? '',
+    other_info: m.other_info ?? '',
     is_public: m.is_public,
   }
 }
@@ -453,6 +480,9 @@ function openCreate() {
     company_name: '',
     job_title: '',
     business_description: '',
+    website_url: '',
+    cell_info: '',
+    other_info: '',
     is_public: true,
   }
   showForm.value = true
@@ -472,6 +502,9 @@ function bodyFromForm(f: MemberFormModel) {
     company_name: f.company_name || null,
     job_title: f.job_title || null,
     business_description: f.business_description || null,
+    website_url: f.website_url?.trim() || null,
+    cell_info: f.cell_info?.trim() || null,
+    other_info: f.other_info?.trim() || null,
     is_public: f.is_public,
   }
 }
