@@ -212,9 +212,7 @@ async function loadCategories() {
     categories.value = await $fetch<Category[]>('/api/public/categories')
   }
   catch (e: unknown) {
-    const msg = e && typeof e === 'object' && 'data' in e
-      ? (e as { data?: { message?: string } }).data?.message
-      : null
+    const msg = extractFetchError(e)
     categoryError.value = msg
       ? `카테고리를 불러오지 못했습니다. (${msg})`
       : '카테고리를 불러오지 못했습니다.'
@@ -226,41 +224,46 @@ async function fetchMembers() {
   pending.value = true
   memberError.value = ''
 
-  const from = (page.value - 1) * itemsPerPage
-  const to = from + itemsPerPage - 1
-
-  let query = supabase
-    .from('church_members')
-    .select('id, name, phone, company_name, job_title, business_description, categories(name)')
-    .eq('is_public', true)
-    .order('company_name', { ascending: true })
-    .range(from, to)
-
-  if (selectedCategory.value !== '') {
-    query = query.eq('category_id', selectedCategory.value)
+  try {
+    const res = await $fetch<{
+      items: Member[]
+      hasNextPage: boolean
+    }>('/api/public/members', {
+      query: {
+        page: page.value,
+        limit: itemsPerPage,
+        q: searchQuery.value.trim() || undefined,
+        category_id: selectedCategory.value !== '' ? selectedCategory.value : undefined,
+      },
+    })
+    members.value = res.items
+    hasNextPage.value = res.hasNextPage
   }
-
-  const term = searchQuery.value.trim()
-  if (term) {
-    query = query.or(
-      `name.ilike.%${term}%,company_name.ilike.%${term}%,business_description.ilike.%${term}%`,
-    )
-  }
-
-  const { data, error } = await query
-
-  if (error) {
-    console.error(error)
-    memberError.value = `목록을 불러오지 못했습니다. (${error.message})`
+  catch (e: unknown) {
+    const msg = extractFetchError(e)
+    memberError.value = msg
+      ? `목록을 불러오지 못했습니다. (${msg})`
+      : '목록을 불러오지 못했습니다.'
     members.value = []
     hasNextPage.value = false
+    console.error(e)
   }
-  else {
-    members.value = (data ?? []) as Member[]
-    hasNextPage.value = members.value.length === itemsPerPage
+  finally {
+    pending.value = false
   }
+}
 
-  pending.value = false
+function extractFetchError(e: unknown): string | null {
+  if (e && typeof e === 'object') {
+    if ('data' in e) {
+      const d = (e as { data?: { message?: string } }).data
+      if (d?.message) return d.message
+    }
+    if ('statusMessage' in e && (e as { statusMessage?: string }).statusMessage) {
+      return (e as { statusMessage: string }).statusMessage
+    }
+  }
+  return null
 }
 
 function onSearchInput() {
@@ -287,7 +290,12 @@ onMounted(async () => {
     delete q.admin_denied
     router.replace({ query: q })
   }
-  await loadCategories()
-  await fetchMembers()
+  try {
+    await loadCategories()
+    await fetchMembers()
+  }
+  catch {
+    pending.value = false
+  }
 })
 </script>
