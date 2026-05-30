@@ -4,28 +4,39 @@
       <div class="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 class="text-xl font-bold text-gray-900">항목 관리</h1>
-          <p class="text-sm text-gray-500">추가 · 수정 · 삭제 · 엑셀</p>
+          <p class="text-sm text-gray-500">교인 항목 · 업종 카테고리 · 엑셀</p>
         </div>
         <div class="flex flex-wrap gap-2">
           <button
+            v-if="activeTab === 'members'"
             type="button"
             class="text-sm px-3 py-1.5 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
             @click="openCreate"
           >
-            + 추가
+            + 항목 추가
           </button>
           <button
+            v-if="activeTab === 'categories'"
             type="button"
-            class="text-sm px-3 py-1.5 rounded-lg border border-gray-300 bg-white hover:bg-gray-50"
-            :disabled="exporting"
-            @click="exportExcel"
+            class="text-sm px-3 py-1.5 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
+            @click="openCategoryCreate"
           >
-            {{ exporting ? '보내는 중...' : '엑셀 보내기' }}
+            + 카테고리 추가
           </button>
-          <label class="text-sm px-3 py-1.5 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 cursor-pointer">
-            {{ importing ? '가져오는 중...' : '엑셀 가져오기' }}
-            <input type="file" accept=".xlsx,.xls" class="hidden" :disabled="importing" @change="importExcel">
-          </label>
+          <template v-if="activeTab === 'members'">
+            <button
+              type="button"
+              class="text-sm px-3 py-1.5 rounded-lg border border-gray-300 bg-white hover:bg-gray-50"
+              :disabled="exporting"
+              @click="exportExcel"
+            >
+              {{ exporting ? '보내는 중...' : '엑셀 보내기' }}
+            </button>
+            <label class="text-sm px-3 py-1.5 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 cursor-pointer">
+              {{ importing ? '가져오는 중...' : '엑셀 가져오기' }}
+              <input type="file" accept=".xlsx,.xls" class="hidden" :disabled="importing" @change="importExcel">
+            </label>
+          </template>
           <NuxtLink to="/" class="text-sm px-3 py-1.5 rounded-lg border border-gray-300 bg-white hover:bg-gray-50">
             목록 보기
           </NuxtLink>
@@ -41,6 +52,72 @@
     </header>
 
     <main class="max-w-6xl mx-auto px-4 sm:px-6 py-6">
+      <nav class="flex gap-1 mb-6 border-b border-gray-200">
+        <button
+          type="button"
+          class="px-4 py-2 text-sm font-medium border-b-2 -mb-px transition"
+          :class="activeTab === 'members' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-800'"
+          @click="activeTab = 'members'"
+        >
+          교인 항목
+        </button>
+        <button
+          type="button"
+          class="px-4 py-2 text-sm font-medium border-b-2 -mb-px transition"
+          :class="activeTab === 'categories' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-800'"
+          @click="activeTab = 'categories'"
+        >
+          업종 카테고리
+        </button>
+      </nav>
+
+      <!-- 카테고리 관리 -->
+      <div v-if="activeTab === 'categories'">
+        <p v-if="categoryLoadError" class="text-sm text-red-600 mb-4">{{ categoryLoadError }}</p>
+        <div v-if="categoriesPending" class="text-center py-12 text-gray-500">
+          불러오는 중...
+        </div>
+        <div v-else class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm max-w-lg">
+          <table class="w-full text-sm text-left">
+            <thead class="bg-gray-50 text-gray-600 border-b">
+              <tr>
+                <th class="px-4 py-3 font-medium">
+                  업종 이름
+                </th>
+                <th class="px-4 py-3 font-medium text-right">
+                  작업
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="cat in categories" :key="cat.id" class="border-b border-gray-100">
+                <td class="px-4 py-3">
+                  {{ cat.name }}
+                </td>
+                <td class="px-4 py-3 text-right whitespace-nowrap">
+                  <button type="button" class="text-blue-600 hover:underline mr-3" @click="openCategoryEdit(cat)">
+                    수정
+                  </button>
+                  <button type="button" class="text-red-600 hover:underline" @click="removeCategory(cat)">
+                    삭제
+                  </button>
+                </td>
+              </tr>
+              <tr v-if="categories.length === 0">
+                <td colspan="2" class="px-4 py-8 text-center text-gray-500">
+                  등록된 카테고리가 없습니다.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="mt-3 text-xs text-gray-500">
+          삭제 시 해당 업종을 쓰던 교인 항목의 업종만 비워집니다.
+        </p>
+      </div>
+
+      <!-- 교인 항목 -->
+      <div v-show="activeTab === 'members'">
       <div class="flex flex-col sm:flex-row gap-3 mb-4">
         <input
           v-model="searchQuery"
@@ -155,6 +232,7 @@
           </div>
         </div>
       </div>
+      </div>
     </main>
 
     <AdminMemberForm
@@ -165,6 +243,15 @@
       :categories="categories"
       @close="showForm = false"
       @save="saveMember"
+    />
+
+    <AdminCategoryForm
+      v-if="showCategoryForm"
+      ref="categoryFormRef"
+      :editing="!!editingCategoryId"
+      :initial-name="categoryFormName"
+      @close="showCategoryForm = false"
+      @save="saveCategory"
     />
   </div>
 </template>
@@ -212,6 +299,14 @@ const exporting = ref(false)
 const importing = ref(false)
 const importResult = ref<{ imported: number, failed: number, errors: { row: number, message: string }[] } | null>(null)
 
+const activeTab = ref<'members' | 'categories'>('members')
+const categoriesPending = ref(false)
+const categoryLoadError = ref('')
+const showCategoryForm = ref(false)
+const editingCategoryId = ref<number | null>(null)
+const categoryFormName = ref('')
+const categoryFormRef = ref<{ setSaving: (v: boolean) => void, setError: (m: string) => void } | null>(null)
+
 let debounceTimer: ReturnType<typeof setTimeout>
 
 async function ensureAdmin() {
@@ -235,7 +330,74 @@ async function ensureAdmin() {
 }
 
 async function loadCategories() {
-  categories.value = await $fetch<CategoryOption[]>('/api/admin/categories')
+  categoriesPending.value = true
+  categoryLoadError.value = ''
+  try {
+    categories.value = await $fetch<CategoryOption[]>('/api/admin/categories')
+  }
+  catch (e: unknown) {
+    categoryLoadError.value = e instanceof Error ? e.message : '카테고리를 불러오지 못했습니다.'
+    categories.value = []
+  }
+  finally {
+    categoriesPending.value = false
+  }
+}
+
+function openCategoryCreate() {
+  editingCategoryId.value = null
+  categoryFormName.value = ''
+  showCategoryForm.value = true
+}
+
+function openCategoryEdit(cat: CategoryOption) {
+  editingCategoryId.value = cat.id
+  categoryFormName.value = cat.name
+  showCategoryForm.value = true
+}
+
+async function saveCategory(name: string) {
+  categoryFormRef.value?.setSaving(true)
+  categoryFormRef.value?.setError('')
+  try {
+    if (editingCategoryId.value) {
+      await $fetch(`/api/admin/categories/${editingCategoryId.value}`, { method: 'PUT', body: { name } })
+    }
+    else {
+      await $fetch('/api/admin/categories', { method: 'POST', body: { name } })
+    }
+    showCategoryForm.value = false
+    await loadCategories()
+  }
+  catch (e: unknown) {
+    const msg = e && typeof e === 'object' && 'data' in e && (e.data as { message?: string })?.message
+      ? (e.data as { message: string }).message
+      : '저장에 실패했습니다.'
+    categoryFormRef.value?.setError(msg)
+  }
+  finally {
+    categoryFormRef.value?.setSaving(false)
+  }
+}
+
+async function removeCategory(cat: CategoryOption) {
+  if (!confirm(`"${cat.name}" 카테고리를 삭제할까요?`)) {
+    return
+  }
+  try {
+    await $fetch(`/api/admin/categories/${cat.id}`, { method: 'DELETE' })
+    await loadCategories()
+    if (filterCategory.value === cat.id) {
+      filterCategory.value = ''
+      await loadMembers()
+    }
+  }
+  catch (e: unknown) {
+    const msg = e && typeof e === 'object' && 'data' in e && (e.data as { message?: string })?.message
+      ? (e.data as { message: string }).message
+      : '삭제에 실패했습니다.'
+    alert(msg)
+  }
 }
 
 async function loadMembers() {

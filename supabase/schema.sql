@@ -89,6 +89,12 @@ CREATE POLICY "admin_manage_members" ON church_members
     USING (public.is_admin())
     WITH CHECK (public.is_admin());
 
+DROP POLICY IF EXISTS "admin_manage_categories" ON categories;
+CREATE POLICY "admin_manage_categories" ON categories
+    FOR ALL TO authenticated
+    USING (public.is_admin())
+    WITH CHECK (public.is_admin());
+
 -- 본인 이메일 행만 조회
 DROP POLICY IF EXISTS "read_own_allowed" ON allowed_users;
 CREATE POLICY "read_own_allowed" ON allowed_users

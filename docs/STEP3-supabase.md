@@ -15,7 +15,8 @@
 
 5. [supabase/migrations/002_public_read.sql](../supabase/migrations/002_public_read.sql) 실행 (anon 읽기)
 6. [supabase/migrations/004_grants_anon.sql](../supabase/migrations/004_grants_anon.sql) 실행 (권한 부여 — 카테고리 오류 시)
-7. [supabase/migrations/003_admin_rls.sql](../supabase/migrations/003_admin_rls.sql) 실행 (관리자 CRUD)
+7. [supabase/migrations/003_admin_rls.sql](../supabase/migrations/003_admin_rls.sql) 실행 (관리자 교인 CRUD)
+8. [supabase/migrations/005_admin_categories_rls.sql](../supabase/migrations/005_admin_categories_rls.sql) 실행 (관리자 카테고리 CRUD)
 
 ### 관리자 Google 계정 등록 (필수)
 
@@ -74,4 +75,4 @@ VALUES ('본인@gmail.com', '이름', true, 'admin');
 
 - 메인 `/` — 공개 목록 (로그인 불필요)
 - `/login` — Google 관리자 로그인
-- `/admin` — 항목 CRUD · 엑셀 가져오기/보내기
+- `/admin` — 교인 항목·업종 카테고리 CRUD · 엑셀 가져오기/보내기
