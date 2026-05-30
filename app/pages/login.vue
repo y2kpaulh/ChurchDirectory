@@ -33,16 +33,13 @@ definePageMeta({ supabase: { redirect: false } })
 const supabase = useSupabaseClient()
 const config = useRuntimeConfig()
 
-/** Magic Link 리다이렉트 — Vercel에서는 NUXT_PUBLIC_SITE_URL 또는 브라우저 origin 사용 */
-function getAuthRedirectOrigin(): string {
-  if (import.meta.client) {
-    return window.location.origin
-  }
-  const siteUrl = config.public.siteUrl as string
-  if (siteUrl) {
-    return siteUrl.replace(/\/$/, '')
-  }
-  return useRequestURL().origin
+/** Magic Link가 도착할 콜백 URL (Supabase Redirect URLs에 동일하게 등록 필요) */
+function getEmailRedirectTo(): string {
+  const origin = import.meta.client
+    ? window.location.origin
+    : (config.public.siteUrl as string)?.replace(/\/$/, '') || useRequestURL().origin
+
+  return `${origin}/confirm`
 }
 
 const email = ref('')
@@ -55,10 +52,12 @@ const handleLogin = async () => {
   message.value = ''
   errorMessage.value = ''
 
+  const emailRedirectTo = getEmailRedirectTo()
+
   const { error } = await supabase.auth.signInWithOtp({
     email: email.value,
     options: {
-      emailRedirectTo: `${getAuthRedirectOrigin()}/confirm`,
+      emailRedirectTo,
     },
   })
 
