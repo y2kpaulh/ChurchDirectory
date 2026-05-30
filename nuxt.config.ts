@@ -19,7 +19,10 @@ export default defineNuxtConfig({
     redirectOptions: {
       login: '/login',
       callback: '/confirm',
+      // 목록(/)은 누구나 — 로그인은 관리자·항목 관리(/admin)만 필요
+      include: ['/admin', '/admin/**'],
       exclude: ['/login', '/confirm'],
+      saveRedirectToCookie: true,
     },
   },
 })

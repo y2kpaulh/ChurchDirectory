@@ -80,9 +80,9 @@ http://localhost:3001/confirm
 
 ## 4. 배포 후 테스트
 
-1. `https://YOUR-APP.vercel.app/login` 접속
-2. `allowed_users`에 등록된 이메일로 Magic Link 로그인
-3. 메인에서 검색·카테고리 동작 확인
+1. `https://YOUR-APP.vercel.app/` — 로그인 없이 목록·검색 확인
+2. 톱니 → Google 관리자 로그인 (`allowed_users`에 Gmail + `role=admin`)
+3. `/admin`에서 CRUD·엑셀 동작 확인
 
 ---
 

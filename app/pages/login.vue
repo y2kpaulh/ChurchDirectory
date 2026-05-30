@@ -1,28 +1,34 @@
 <template>
   <div class="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-    <div class="max-w-md w-full space-y-8 p-8 bg-white rounded-xl shadow-md">
-      <h2 class="text-center text-3xl font-extrabold text-gray-900">교회 직장인 디렉토리</h2>
-      <p class="text-center text-sm text-gray-500">등록된 교인 이메일로 로그인해 주세요.</p>
+    <div class="max-w-md w-full space-y-6 p-8 bg-white rounded-xl shadow-md">
+      <div class="text-center">
+        <h2 class="text-2xl font-extrabold text-gray-900">관리자 로그인</h2>
+        <p class="mt-2 text-sm text-gray-500">
+          Google 계정으로 로그인합니다. 항목 관리는 관리자만 가능합니다.<br>
+          목록 조회는 <NuxtLink to="/" class="text-blue-600 hover:underline">메인 화면</NuxtLink>에서 로그인 없이 이용하세요.
+        </p>
+      </div>
 
-      <form class="mt-8 space-y-4" @submit.prevent="handleLogin">
-        <input
-          v-model="email"
-          type="email"
-          required
-          placeholder="이메일 주소"
-          class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-        <button
-          type="submit"
-          :disabled="loading"
-          class="w-full bg-blue-600 text-white p-3 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50"
-        >
-          {{ loading ? '인증 메일 전송 중...' : '인증 메일 받기' }}
-        </button>
-      </form>
+      <button
+        type="button"
+        :disabled="loading"
+        class="w-full flex items-center justify-center gap-3 border border-gray-300 bg-white p-3 rounded-lg font-semibold hover:bg-gray-50 disabled:opacity-50"
+        @click="handleGoogleLogin"
+      >
+        <svg class="h-5 w-5" viewBox="0 0 24 24" aria-hidden="true">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" />
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+        </svg>
+        {{ loading ? 'Google로 이동 중...' : 'Google로 로그인' }}
+      </button>
 
-      <p v-if="message" class="text-center text-sm text-green-600 font-medium">{{ message }}</p>
       <p v-if="errorMessage" class="text-center text-sm text-red-600 font-medium">{{ errorMessage }}</p>
+
+      <p class="text-center">
+        <NuxtLink to="/" class="text-sm text-gray-500 hover:text-gray-800">← 목록으로 돌아가기</NuxtLink>
+      </p>
     </div>
   </div>
 </template>
@@ -30,44 +36,17 @@
 <script setup lang="ts">
 definePageMeta({ supabase: { redirect: false } })
 
-const supabase = useSupabaseClient()
-const config = useRuntimeConfig()
-
-/** Magic Link가 도착할 콜백 URL (Supabase Redirect URLs에 동일하게 등록 필요) */
-function getEmailRedirectTo(): string {
-  const origin = import.meta.client
-    ? window.location.origin
-    : (config.public.siteUrl as string)?.replace(/\/$/, '') || useRequestURL().origin
-
-  return `${origin}/confirm`
-}
-
-const email = ref('')
+const { signInWithGoogle } = useAdminAuth()
 const loading = ref(false)
-const message = ref('')
 const errorMessage = ref('')
 
-const handleLogin = async () => {
+async function handleGoogleLogin() {
   loading.value = true
-  message.value = ''
   errorMessage.value = ''
-
-  const emailRedirectTo = getEmailRedirectTo()
-
-  const { error } = await supabase.auth.signInWithOtp({
-    email: email.value,
-    options: {
-      emailRedirectTo,
-    },
-  })
-
+  const { error } = await signInWithGoogle()
   loading.value = false
-
   if (error) {
     errorMessage.value = error.message
-    return
   }
-
-  message.value = '이메일로 인증 링크가 전송되었습니다! 메일함을 확인해 주세요.'
 }
 </script>

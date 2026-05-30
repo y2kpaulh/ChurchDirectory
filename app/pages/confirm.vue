@@ -12,7 +12,7 @@ const user = useSupabaseUser()
 const session = useSupabaseSession()
 const route = useRoute()
 
-const statusMessage = ref('로그인을 확인하는 중입니다...')
+const statusMessage = ref('관리자 로그인을 확인하는 중입니다...')
 const verifying = ref(false)
 
 function authErrorFromQuery(): string | null {
@@ -27,7 +27,6 @@ function authErrorFromQuery(): string | null {
   return null
 }
 
-/** PKCE 코드 교환·쿠키 반영까지 대기 */
 async function waitForSession(maxMs = 15000): Promise<boolean> {
   const deadline = Date.now() + maxMs
   while (Date.now() < deadline) {
@@ -43,35 +42,37 @@ async function waitForSession(maxMs = 15000): Promise<boolean> {
   return false
 }
 
-async function verifyApproval() {
+async function verifyAdmin() {
   if (verifying.value || !user.value) {
     return
   }
   verifying.value = true
 
   try {
-    const data = await $fetch<{ approved: boolean }>('/api/check-user')
+    const data = await $fetch<{ isAdmin: boolean }>('/api/check-user')
 
-    if (data?.approved) {
+    if (data?.isAdmin) {
       if (!session.value) {
         const ready = await waitForSession(5000)
         if (!ready) {
-          statusMessage.value = '세션 동기화에 실패했습니다. 다시 로그인해 주세요.'
+          statusMessage.value = '세션 동기화에 실패했습니다.'
           await supabase.auth.signOut()
           await navigateTo('/login')
           return
         }
       }
-      await navigateTo('/', { replace: true })
+      await navigateTo('/admin', { replace: true })
       return
     }
 
-    statusMessage.value = '승인되지 않은 계정입니다. 관리자에게 승인 요청을 해주세요.'
+    statusMessage.value = '등록된 관리자 계정만 로그인할 수 있습니다.'
     await supabase.auth.signOut()
+    await navigateTo({ path: '/', query: { admin_denied: '1' } })
   }
   catch {
-    statusMessage.value = '권한 확인 중 오류가 발생했습니다. 다시 로그인해 주세요.'
+    statusMessage.value = '권한 확인 중 오류가 발생했습니다.'
     await supabase.auth.signOut()
+    await navigateTo('/login')
   }
   finally {
     verifying.value = false
@@ -80,8 +81,8 @@ async function verifyApproval() {
 
 watch(user, (u) => {
   if (u) {
-    statusMessage.value = '권한을 확인하는 중입니다...'
-    verifyApproval()
+    statusMessage.value = '관리자 권한을 확인하는 중입니다...'
+    verifyAdmin()
   }
 }, { immediate: true })
 
@@ -96,19 +97,9 @@ onMounted(async () => {
   if (typeof route.query.code === 'string' && !user.value) {
     const ready = await waitForSession()
     if (!ready) {
-      statusMessage.value = '인증 링크가 만료되었거나 처리에 실패했습니다. 인증 메일을 다시 요청해 주세요.'
+      statusMessage.value = '인증이 만료되었거나 처리에 실패했습니다.'
       await navigateTo('/login')
     }
-    return
-  }
-
-  if (!user.value && !route.query.code) {
-    window.setTimeout(async () => {
-      if (!user.value) {
-        statusMessage.value = '로그인 세션이 확인되지 않았습니다. 다시 시도해 주세요.'
-        await navigateTo('/login')
-      }
-    }, 12000)
   }
 })
 </script>

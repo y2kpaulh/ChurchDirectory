@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
   const { data: { user } } = await client.auth.getUser()
 
   if (!user?.email) {
-    throw createError({ statusCode: 401, message: '로그인이 필요합니다.' })
+    throw createError({ statusCode: 401, message: '관리자 로그인이 필요합니다.' })
   }
 
   const { data, error } = await client
@@ -15,8 +15,10 @@ export default defineEventHandler(async (event) => {
     .single()
 
   if (error || !data || !data.is_approved) {
-    return { approved: false, role: null }
+    return { approved: false, role: null, isAdmin: false }
   }
 
-  return { approved: true, role: data.role }
+  const isAdmin = data.role === 'admin'
+
+  return { approved: true, role: data.role, isAdmin }
 })

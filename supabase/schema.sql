@@ -44,6 +44,17 @@ ALTER TABLE categories ENABLE ROW LEVEL SECURITY;
 ALTER TABLE church_members ENABLE ROW LEVEL SECURITY;
 ALTER TABLE allowed_users ENABLE ROW LEVEL SECURITY;
 
+-- 비로그인(메인 화면): 공개 멤버·카테고리 조회
+DROP POLICY IF EXISTS "anon_read_public_members" ON church_members;
+CREATE POLICY "anon_read_public_members" ON church_members
+    FOR SELECT TO anon
+    USING (is_public = true);
+
+DROP POLICY IF EXISTS "anon_read_categories" ON categories;
+CREATE POLICY "anon_read_categories" ON categories
+    FOR SELECT TO anon
+    USING (true);
+
 -- 로그인 사용자: 공개 멤버만 조회
 DROP POLICY IF EXISTS "read_public_members" ON church_members;
 CREATE POLICY "read_public_members" ON church_members
@@ -56,12 +67,34 @@ CREATE POLICY "read_categories" ON categories
     FOR SELECT TO authenticated
     USING (true);
 
+-- 관리자: church_members 전체 CRUD
+CREATE OR REPLACE FUNCTION public.is_admin()
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM allowed_users
+    WHERE email = (auth.jwt() ->> 'email')
+      AND is_approved = true
+      AND role = 'admin'
+  );
+$$;
+
+DROP POLICY IF EXISTS "admin_manage_members" ON church_members;
+CREATE POLICY "admin_manage_members" ON church_members
+    FOR ALL TO authenticated
+    USING (public.is_admin())
+    WITH CHECK (public.is_admin());
+
 -- 본인 이메일 행만 조회
 DROP POLICY IF EXISTS "read_own_allowed" ON allowed_users;
 CREATE POLICY "read_own_allowed" ON allowed_users
     FOR SELECT TO authenticated
     USING (auth.jwt() ->> 'email' = email);
 
--- ⚠️ 아래 이메일을 본인 Magic Link 로그인용 이메일로 바꾼 뒤 실행
+-- ⚠️ 관리자만 로그인 (role=admin). 목록 조회는 비로그인(anon) 공개.
 -- INSERT INTO allowed_users (email, name, is_approved, role)
--- VALUES ('your@email.com', '테스트 사용자', true, 'user');
+-- VALUES ('your@email.com', '관리자', true, 'admin');

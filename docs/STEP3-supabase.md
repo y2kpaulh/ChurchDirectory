@@ -11,14 +11,21 @@
 3. [supabase/schema.sql](../supabase/schema.sql) 내용 전체 복사 → 붙여넣기 → **Run**
 4. 성공 시 **Table Editor**에서 `categories`, `church_members`, `allowed_users` 확인
 
-### 본인 이메일 승인 등록 (필수)
+**이미 schema.sql을 실행한 경우** — 메인 화면 비로그인 조회용 정책 추가:
+
+5. [supabase/migrations/002_public_read.sql](../supabase/migrations/002_public_read.sql) 실행 (anon 읽기)
+6. [supabase/migrations/003_admin_rls.sql](../supabase/migrations/003_admin_rls.sql) 실행 (관리자 CRUD)
+
+### 관리자 Google 계정 등록 (필수)
 
 SQL Editor에서 (이메일만 본인 것으로 변경):
 
 ```sql
 INSERT INTO allowed_users (email, name, is_approved, role)
-VALUES ('본인@이메일.com', '이름', true, 'user');
+VALUES ('본인@gmail.com', '이름', true, 'admin');
 ```
+
+> **Google 로그인에 쓰는 Gmail과 동일한 이메일**이어야 합니다. 일반 방문자는 메인(`/`)만 이용합니다.
 
 ### 테스트용 교인 데이터 (선택)
 
@@ -27,33 +34,43 @@ VALUES ('본인@이메일.com', '이름', true, 'user');
 
 ---
 
-## 2. Authentication 설정
+## 2. Google 로그인 (관리자)
 
-**Authentication → Providers → Email**
+### Google Cloud Console
 
-- Email provider: **Enabled**
-- Confirm email: 프로젝트 기본값 사용 (Magic Link 동작 확인)
+1. [Google Cloud Console](https://console.cloud.google.com/) → OAuth 2.0 Client ID (웹)
+2. **Authorized redirect URIs**에 추가:
+   - `https://<PROJECT_REF>.supabase.co/auth/v1/callback`
+3. Client ID / Secret 복사
+
+### Supabase Dashboard
+
+**Authentication → Providers → Google** → Enabled, Client ID/Secret 입력
 
 **Authentication → URL Configuration**
 
 | 항목 | 값 |
 |------|-----|
-| Site URL | `http://localhost:3001` |
+| Site URL | `http://localhost:3001` (로컬) |
 | Redirect URLs | `http://localhost:3001/confirm` |
 
-나중에 Vercel 배포 시 `https://xxxx.vercel.app/confirm` 추가.
+배포 시 `https://church-directory-cyan.vercel.app/confirm` 추가.
 
 ---
 
 ## 3. 완료 체크리스트
 
 - [ ] `categories`에 4개 업종 행 있음
-- [ ] `allowed_users`에 본인 이메일 + `is_approved = true`
+- [ ] `allowed_users`에 Google 이메일 + `role = admin`
+- [ ] `003_admin_rls.sql` 실행
 - [ ] (선택) `church_members`에 `is_public = true` 샘플 1건 이상
+- [ ] `002_public_read.sql` 실행 (메인 `/` 로그인 없이 목록 표시)
 - [ ] Redirect URLs에 `http://localhost:3001/confirm` 등록
 
 ---
 
-## 4. 다음 단계
+## 4. 관리 화면
 
-Step 4에서 `login.vue` / `confirm.vue`에 Magic Link 로그인 구현.
+- 메인 `/` — 공개 목록 (로그인 불필요)
+- `/login` — Google 관리자 로그인
+- `/admin` — 항목 CRUD · 엑셀 가져오기/보내기

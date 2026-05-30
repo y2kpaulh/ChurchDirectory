@@ -1,5 +1,14 @@
 # 교회 직장인 디렉토리
 
+## 이용 방식
+
+| 대상 | 경로 | 로그인 |
+|------|------|--------|
+| **누구나** | `/` (메인) | 불필요 — 공개 목록·검색·카테고리 |
+| **관리자** | 톱니 → `/login` (Google) → `/admin` | 필요 — 항목 CRUD · 엑셀 가져오기/보내기 |
+
+`allowed_users` 테이블에 **`role = 'admin'`** 인 이메일만 관리자 로그인이 됩니다.
+
 ## 작업 폴더 (중요)
 
 **이 프로젝트의 작업 디렉터리:**
@@ -37,8 +46,10 @@ ChurchDirectory/
 │   ├── app.vue
 │   └── pages/
 │       ├── index.vue
-│       ├── login.vue
-│       └── confirm.vue
+│       ├── index.vue      # 공개 목록
+│       ├── login.vue      # 관리자 로그인
+│       ├── confirm.vue
+│       └── admin/index.vue
 ├── server/api/check-user.get.ts
 ├── supabase/
 ├── .env              # Git 제외
