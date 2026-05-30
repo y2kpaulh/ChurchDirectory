@@ -15,6 +15,10 @@ export default defineNuxtConfig({
     },
   },
   modules: ['@nuxtjs/supabase', '@nuxtjs/tailwindcss'],
+  nitro: {
+    // xlsx: 프로덕션에서 cpexcel 절대경로 번들 깨짐 방지
+    externals: { inline: ['xlsx'] },
+  },
   supabase: {
     cookieOptions: {
       maxAge: 60 * 60 * 8,

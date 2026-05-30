@@ -1,4 +1,5 @@
-import * as XLSX from 'xlsx'
+// xlsx.mjs: Vercel 등에서 cpexcel 절대경로 번들 오류 방지 (한글 UTF-8 충분)
+import * as XLSX from 'xlsx/xlsx.mjs'
 import { normalizeWebsiteUrl } from './normalize-url'
 
 export const EXCEL_HEADERS = ['이름', '전화', '업종', '회사명', '직함', '업무설명', 'URL', '소속Cell', '기타', '공개'] as const
@@ -97,6 +98,14 @@ export function parseExcelBuffer(
   return { rows, errors }
 }
 
+function categoryLabel(
+  categories: { name: string } | { name: string }[] | null | undefined,
+): string {
+  if (!categories) return ''
+  if (Array.isArray(categories)) return categories[0]?.name ?? ''
+  return categories.name ?? ''
+}
+
 export function buildExportWorkbook(
   members: Array<{
     name: string
@@ -104,17 +113,17 @@ export function buildExportWorkbook(
     company_name: string | null
     job_title: string | null
     business_description: string | null
-    website_url: string | null
-    cell_info: string | null
-    other_info: string | null
+    website_url?: string | null
+    cell_info?: string | null
+    other_info?: string | null
     is_public: boolean
-    categories: { name: string } | null
+    categories?: { name: string } | { name: string }[] | null
   }>,
 ): Buffer {
   const data = members.map(m => ({
     이름: m.name,
     전화: m.phone ?? '',
-    업종: m.categories?.name ?? '',
+    업종: categoryLabel(m.categories),
     회사명: m.company_name ?? '',
     직함: m.job_title ?? '',
     업무설명: m.business_description ?? '',

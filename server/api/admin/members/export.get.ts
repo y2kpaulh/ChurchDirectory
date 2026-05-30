@@ -1,13 +1,27 @@
 import { requireAdmin } from '../../../utils/require-admin'
 import { buildExportWorkbook } from '../../../utils/excel-members'
+import {
+  isMissingColumnError,
+  MEMBER_EXPORT_SELECT_FULL,
+  MEMBER_EXPORT_SELECT_LEGACY,
+} from '../../../utils/member-export-select'
 
 export default defineEventHandler(async (event) => {
   const { client } = await requireAdmin(event)
 
-  const { data, error } = await client
+  let { data, error } = await client
     .from('church_members')
-    .select('name, phone, company_name, job_title, business_description, website_url, cell_info, other_info, is_public, categories(name)')
+    .select(MEMBER_EXPORT_SELECT_FULL)
     .order('company_name', { ascending: true })
+
+  if (error && isMissingColumnError(error.message)) {
+    const legacy = await client
+      .from('church_members')
+      .select(MEMBER_EXPORT_SELECT_LEGACY)
+      .order('company_name', { ascending: true })
+    data = legacy.data
+    error = legacy.error
+  }
 
   if (error) {
     throw createError({ statusCode: 500, message: error.message })
@@ -18,6 +32,7 @@ export default defineEventHandler(async (event) => {
 
   setHeader(event, 'Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
   setHeader(event, 'Content-Disposition', `attachment; filename="${filename}"`)
+  setHeader(event, 'Content-Length', String(buffer.byteLength))
 
-  return buffer
+  return new Uint8Array(buffer)
 })

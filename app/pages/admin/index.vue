@@ -550,7 +550,26 @@ async function remove(row: AdminMember) {
 async function exportExcel() {
   exporting.value = true
   try {
-    const blob = await $fetch<Blob>('/api/admin/members/export', { responseType: 'blob' })
+    const res = await fetch('/api/admin/members/export', { credentials: 'include' })
+    if (!res.ok) {
+      let message = `엑셀 보내기 실패 (${res.status})`
+      try {
+        const body = await res.json() as { message?: string, statusMessage?: string }
+        message = body.message || body.statusMessage || message
+      }
+      catch {
+        const text = await res.text()
+        if (text) message = text.slice(0, 200)
+      }
+      alert(message)
+      return
+    }
+    const blob = await res.blob()
+    const head = new Uint8Array(await blob.slice(0, 4).arrayBuffer())
+    if (head[0] !== 0x50 || head[1] !== 0x4B) {
+      alert('서버 응답이 엑셀 파일이 아닙니다. DB 마이그레이션(006·007) 적용 여부를 확인하세요.')
+      return
+    }
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
@@ -558,8 +577,9 @@ async function exportExcel() {
     a.click()
     URL.revokeObjectURL(url)
   }
-  catch {
-    alert('엑셀보내기에 실패했습니다.')
+  catch (e) {
+    const msg = e instanceof Error ? e.message : '엑셀 보내기에 실패했습니다.'
+    alert(msg)
   }
   finally {
     exporting.value = false
