@@ -41,6 +41,7 @@ Vercel 프로젝트 설정에서 **Environment Variables** 추가:
 |------|--------|
 | `NUXT_PUBLIC_SUPABASE_URL` | Supabase Project URL |
 | `NUXT_PUBLIC_SUPABASE_KEY` | Supabase Publishable key |
+| `NUXT_PUBLIC_SITE_URL` | `https://swhanachurchdirectory.vercel.app` (본인 Vercel 도메인) |
 
 Production · Preview · Development 모두 체크 권장.
 
@@ -58,15 +59,19 @@ Production · Preview · Development 모두 체크 권장.
 
 **Authentication → URL Configuration**
 
-| 항목 | 추가할 값 |
-|------|-----------|
-| Site URL | `https://YOUR-APP.vercel.app` |
-| Redirect URLs | `https://YOUR-APP.vercel.app/confirm` |
+| 항목 | 값 |
+|------|-----|
+| **Site URL** | `https://swhanachurchdirectory.vercel.app` ← **localhost 넣지 않음** |
+| **Redirect URLs** | 아래를 **한 줄씩** 모두 추가 |
 
-로컬 개발용은 유지:
+```
+https://swhanachurchdirectory.vercel.app/confirm
+http://localhost:3000/confirm
+```
 
-- `http://localhost:3001`
-- `http://localhost:3001/confirm`
+> Site URL이 `http://localhost:3000`이면 프로덕션 로그인 후 localhost로 튕깁니다. **반드시 Vercel URL**로 바꾸세요.
+
+로컬 개발용 Site URL은 바꿀 필요 없습니다. Redirect URLs에 localhost만 있으면 됩니다.
 
 ---
 
@@ -84,4 +89,5 @@ Production · Preview · Development 모두 체크 권장.
 |------|------|
 | 빌드 실패 | Vercel Build Log에서 `NUXT_PUBLIC_*` env 누락 |
 | 로그인 링크 오류 | Supabase Redirect URLs에 `/confirm` (https) |
+| **localhost:3000으로 리다이렉트** | Supabase **Site URL**을 Vercel URL로 변경 (localhost 아님) |
 | 목록 비어 있음 | `church_members.is_public = true` 데이터 존재 |
