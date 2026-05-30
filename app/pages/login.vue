@@ -2,7 +2,7 @@
   <div class="min-h-screen flex items-center justify-center bg-gray-50 px-4">
     <div class="max-w-md w-full space-y-6 p-8 bg-white rounded-xl shadow-md">
       <div class="text-center">
-        <p class="text-sm font-medium text-gray-500">교회 성도 직장 목록</p>
+        <p class="text-sm font-medium text-gray-500">수원하나교회 성도 직장 목록</p>
         <h2 class="text-2xl font-extrabold text-gray-900 mt-1">관리자 로그인</h2>
         <p class="mt-2 text-sm text-gray-500">
           Google 계정으로 로그인합니다. 항목 관리는 관리자만 가능합니다.<br>

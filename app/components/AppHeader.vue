@@ -3,7 +3,7 @@
     <div class="max-w-5xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-4">
       <div class="min-w-0">
         <h1 class="text-xl sm:text-2xl font-bold text-gray-900 truncate">
-          교회 성도 직장 목록
+          수원하나교회 성도 직장 목록
         </h1>
         <p class="text-xs sm:text-sm text-gray-500 mt-0.5">
           성도 직장·사업 정보를 검색할 수 있습니다
